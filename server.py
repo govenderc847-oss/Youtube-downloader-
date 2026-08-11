@@ -5,6 +5,10 @@ import yt_dlp
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({'status': 'Server is online'})
+
 @app.route('/download', methods=['POST'])
 def handle_download():
     data = request.get_json() or {}
@@ -15,8 +19,18 @@ def handle_download():
         return jsonify({'error': 'Please provide a valid URL'}), 400
 
     ydl_opts = {
-        'format': 'bestaudio/best' if format_type == 'mp3' else 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'format': 'bestaudio/best' if format_type == 'mp3' else 'best',
         'quiet': True,
+        'socket_timeout': 15,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9',
+        },
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'ios']
+            }
+        }
     }
 
     try:
